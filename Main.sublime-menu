@@ -3,7 +3,7 @@
         "id": "selection",
         "children":
         [
-            { "command": "jsPhpExec" }
+            { "command": "js_php_exec" }
         ]
     }
 ]

@@ -2,7 +2,7 @@
 # @Author: user
 # @Date:   2020-05-31 22:10:07
 # @Last Modified by:   Lokres
-# @Last Modified time: 2020-06-01 18:58:58
+# @Last Modified time: 2020-06-01 23:16:38
 
 
 import sublime
@@ -14,7 +14,7 @@ import tempfile
 from tempfile import NamedTemporaryFile
 class JsPhpExec(sublime_plugin.TextCommand):
     def run(self, edit):
-
+        settings = sublime.load_settings('js_php_exec.sublime-settings')
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= (
             subprocess.STARTF_USESTDHANDLES | subprocess.STARTF_USESHOWWINDOW
@@ -28,25 +28,28 @@ class JsPhpExec(sublime_plugin.TextCommand):
         cmd = view.substr(text)
         extension = os.path.splitext(view.file_name())[1]
         if(extension == '.js'):
-            cmd = re.sub(r'\n\s*{', r'{', cmd)
-            cmd = re.sub(r'\n\s*([^\s{])', r';\1', cmd)
+            execPath = settings.get('node')
+            cmd = ';\n'+cmd;
+            cmd = re.sub(r'\n([^\n]+)\s*$', r';console.log( \1 );', cmd)
 
-            res = subprocess.check_output(['node', '--eval', cmd, '--print'], startupinfo=startupinfo).decode('UTF-8')
+            fd, path = tempfile.mkstemp()
+            with open(path, 'w') as f:
+              f.write(cmd)
+
+            res = subprocess.check_output([execPath, path], startupinfo=startupinfo).decode('UTF-8')
+            os.close(fd)
+            os.remove(path)
         elif(extension == '.php'):
-
+            execPath = settings.get('php')
             fd, path = tempfile.mkstemp()
             cmd = '<?php \n;'+cmd;
             cmd = re.sub(r'([^;]+);*\s*$', r'print_R( \1 );', cmd)
             with open(path, 'w') as f:
               f.write(cmd)
-            res = subprocess.check_output(['php', '-f', path], startupinfo=startupinfo).decode('UTF-8')
+            res = subprocess.check_output([execPath, '-f', path], startupinfo=startupinfo).decode('UTF-8')
             os.close(fd)
             os.remove(path)
         else:
             return False;
 
-            # cmd = re.sub(r'\n', r'', cmd)
-            # cmd = re.sub(r'([^;]+);$', r'return \1', cmd)
-            # cmd = "print_r(eval('"+cmd+";'));"
-            # res = subprocess.check_output(['php', '-r', cmd], startupinfo=startupinfo).decode('UTF-8')
         self.view.show_popup(res)
