@@ -2,7 +2,7 @@
 # @Author: user
 # @Date:   2020-05-31 22:10:07
 # @Last Modified by:   Lokres
-# @Last Modified time: 2020-06-01 23:16:38
+# @Last Modified time: 2020-06-02 00:15:25
 
 
 import sublime
@@ -14,7 +14,7 @@ import tempfile
 from tempfile import NamedTemporaryFile
 class JsPhpExec(sublime_plugin.TextCommand):
     def run(self, edit):
-        settings = sublime.load_settings('js_php_exec.sublime-settings')
+        settings = sublime.load_settings('JsPhpExec.sublime-settings')
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= (
             subprocess.STARTF_USESTDHANDLES | subprocess.STARTF_USESHOWWINDOW
