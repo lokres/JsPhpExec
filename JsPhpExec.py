@@ -2,7 +2,7 @@
 # @Author: user
 # @Date:   2020-05-31 22:10:07
 # @Last Modified by:   Lokres
-# @Last Modified time: 2020-06-02 00:15:25
+# @Last Modified time: 2020-06-02 01:00:35
 
 
 import sublime
@@ -12,8 +12,10 @@ import re
 import os
 import tempfile
 from tempfile import NamedTemporaryFile
+
 class JsPhpExec(sublime_plugin.TextCommand):
     def run(self, edit):
+        dirName = os.path.dirname(self.view.file_name())+'\\'
         settings = sublime.load_settings('JsPhpExec.sublime-settings')
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= (
@@ -27,6 +29,7 @@ class JsPhpExec(sublime_plugin.TextCommand):
         text = sel[0]
         cmd = view.substr(text)
         extension = os.path.splitext(view.file_name())[1]
+
         if(extension == '.js'):
             execPath = settings.get('node')
             cmd = ';\n'+cmd;
@@ -36,7 +39,7 @@ class JsPhpExec(sublime_plugin.TextCommand):
             with open(path, 'w') as f:
               f.write(cmd)
 
-            res = subprocess.check_output([execPath, path], startupinfo=startupinfo).decode('UTF-8')
+            res = subprocess.check_output(['cmd', '/c' , 'cd', dirName, '&', execPath, path], startupinfo=startupinfo).decode('UTF-8')
             os.close(fd)
             os.remove(path)
         elif(extension == '.php'):
@@ -46,7 +49,8 @@ class JsPhpExec(sublime_plugin.TextCommand):
             cmd = re.sub(r'([^;]+);*\s*$', r'print_R( \1 );', cmd)
             with open(path, 'w') as f:
               f.write(cmd)
-            res = subprocess.check_output([execPath, '-f', path], startupinfo=startupinfo).decode('UTF-8')
+            print('cd', dirName, '&', execPath, '-f', path)
+            res = subprocess.check_output(['cmd', '/c' , 'cd', dirName, '&', execPath, '-f', path], startupinfo=startupinfo).decode('UTF-8')
             os.close(fd)
             os.remove(path)
         else:
