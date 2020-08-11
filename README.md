@@ -1,3 +1,7 @@
-Плагин для sublimeText, запускает выделенный код и выводит результат
+To DO
 
-exec .js and .php string and popup result calculation
+1) Запуск в linux
+
+2) Настройка ширины и высоты окошка в выпадающем меню
+
+3) Запуск файла целиком
